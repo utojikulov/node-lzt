@@ -1,5 +1,5 @@
 export class LZTApiError extends Error {
-	constructor(error) {
+	constructor(error: string | string[]) {
 		super(
 			typeof error === 'string'
 				? error

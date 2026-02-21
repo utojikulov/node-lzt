@@ -1,9 +1,9 @@
 import { LZTApiGroup } from '../apiGroup.js'
 
 export class LZTApiUsersGroup extends LZTApiGroup {
-	static name = 'users'
+	static readonly apiName = 'users'
 	
-	async getUsers({ page, limit } = {}) {
+	async getUsers({ page, limit }: Record<string, any> = {}): Promise<any> {
 		return await this.caller.call('forum', 'GET', '/users', { page, limit })
 	}
 	
@@ -11,7 +11,7 @@ export class LZTApiUsersGroup extends LZTApiGroup {
 		userEmail, username, password, passwordAlgo,
 		userDobDay, userDobMonth, userDobYear,
 		fields, clientId, extraData, extraTimestamp
-	} = {}) {
+	}: Record<string, any> = {}): Promise<any> {
 		return await this.caller.call('forum', 'POST', '/users', {
 			user_email: userEmail,
 			username,
@@ -27,11 +27,11 @@ export class LZTApiUsersGroup extends LZTApiGroup {
 		})
 	}
 	
-	async getFields() {
+	async getFields(): Promise<any> {
 		return await this.caller.call('forum', 'GET', '/users/fields')
 	}
 	
-	async getUser({ userId = 'me' } = {}) {
+	async getUser({ userId = 'me' }: Record<string, any> = {}): Promise<any> {
 		return await this.caller.call('forum', 'GET', `/users/${userId}`)
 	}
 	
@@ -41,7 +41,7 @@ export class LZTApiUsersGroup extends LZTApiGroup {
 		userEmail, username, userTitle,
 		primaryGroupId, secondaryGroupIds,
 		userDobDay, userDobMonth, userDobYear
-	} = {}) {
+	}: Record<string, any> = {}): Promise<any> {
 		return await this.caller.call('forum', 'PUT', `/users/${userId}`, {
 			password,
 			password_old: passwordOld,
@@ -58,47 +58,47 @@ export class LZTApiUsersGroup extends LZTApiGroup {
 		})
 	}
 	
-	async setAvatar({ userId = 'me', avatar } = {}) {
+	async setAvatar({ userId = 'me', avatar }: Record<string, any> = {}): Promise<any> {
 		return await this.caller.call('forum', 'POST', `/users/${userId}/avatar`, { avatar })
 	}
 	
-	async deleteAvatar({ userId = 'me' } = {}) {
+	async deleteAvatar({ userId = 'me' }: Record<string, any> = {}): Promise<any> {
 		return await this.caller.call('forum', 'DELETE', `/users/${userId}/avatar`)
 	}
 	
-	async getFollowers({ userId = 'me', order, page, limit } = {}) {
+	async getFollowers({ userId = 'me', order, page, limit }: Record<string, any> = {}): Promise<any> {
 		return await this.caller.call('forum', 'GET', `/users/${userId}/followers`, { order, page, limit })
 	}
 	
-	async follow({ userId = 'me' } = {}) {
+	async follow({ userId = 'me' }: Record<string, any> = {}): Promise<any> {
 		return await this.caller.call('forum', 'POST', `/users/${userId}/followers`)
 	}
 	
-	async unfollow({ userId = 'me' } = {}) {
+	async unfollow({ userId = 'me' }: Record<string, any> = {}): Promise<any> {
 		return await this.caller.call('forum', 'DELETE', `/users/${userId}/followers`)
 	}
 	
-	async getFollowings({ userId = 'me', order, page, limit } = {}) {
+	async getFollowings({ userId = 'me', order, page, limit }: Record<string, any> = {}): Promise<any> {
 		return await this.caller.call('forum', 'GET', `/users/${userId}/followings`, { order, page, limit })
 	}
 	
-	async getIgnored() {
+	async getIgnored(): Promise<any> {
 		return await this.caller.call('forum', 'GET', '/users/ignored')
 	}
 	
-	async ignore({ userId = 'me' } = {}) {
+	async ignore({ userId = 'me' }: Record<string, any> = {}): Promise<any> {
 		return await this.caller.call('forum', 'GET', `/users/${userId}/ignore`)
 	}
 	
-	async uningore({ userId = 'me' } = {}) {
+	async uningore({ userId = 'me' }: Record<string, any> = {}): Promise<any> {
 		return await this.caller.call('forum', 'DELETE', `/users/${userId}/ignore`)
 	}
 	
-	async getGroups() {
+	async getGroups(): Promise<any> {
 		return await this.caller.call('forum', 'GET', '/users/groups')
 	}
 	
-	async getUserGroups({ userId = 'me' } = {}) {
+	async getUserGroups({ userId = 'me' }: Record<string, any> = {}): Promise<any> {
 		return await this.caller.call('forum', 'GET', `/users/${userId}/groups`)
 	}
 }

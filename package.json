@@ -1,9 +1,10 @@
 {
 	"name": "@lolzteam/sdk",
-	"version": "0.2.6",
+	"version": "0.2.7",
 	"description": "Lolzteam API for node.js",
 	"license": "GPL-3.0",
-	"main": "src/index.js",
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/NztForum/node-lzt"
@@ -24,7 +25,7 @@
 		"p-queue": "^7.3.4"
 	},
 	"files": [
-		"src"
+		"dist"
 	],
 	"engines": {
 		"node": ">=14.0.0"
@@ -32,9 +33,15 @@
 	"lockfileVersion": "2",
 	"devDependencies": {
 		"@babel/eslint-parser": "^7.17.0",
-		"eslint": "^8.15.0"
+		"@types/node": "^25.3.0",
+		"@types/node-fetch": "^2.6.13",
+		"@types/p-queue": "^3.1.0",
+		"eslint": "^8.15.0",
+		"typescript": "^5.9.3"
 	},
 	"scripts": {
-		"test": "npx eslint ."
+		"build": "tsc",
+		"test": "npx eslint .",
+		"prepublishOnly": "npm run build"
 	}
 }

@@ -2,11 +2,11 @@ import { LZTApiGroup } from '../apiGroup.js'
 import { LZTApiError } from '../errors.js'
 
 export class LZTApiMarketGroup extends LZTApiGroup {
-	static name = 'market'
+	static readonly apiName = 'market'
 	
-	#userId = null
+	#userId: number | null = null
 	
-	async #getMyUserId() {
+	async #getMyUserId(): Promise<number> {
 		if(!this.#userId)
 			await this.getUser()
 		
@@ -21,7 +21,7 @@ export class LZTApiMarketGroup extends LZTApiGroup {
 		pmin, pmax, title,
 		showStickyItems,
 		...categoryParams
-	} = {}) {
+	}: Record<string, any> = {}): Promise<any> {
 		return await this.caller.call(
 			'market',
 			'GET',
@@ -34,7 +34,7 @@ export class LZTApiMarketGroup extends LZTApiGroup {
 		)
 	}
 	
-	async getUser() {
+	async getUser(): Promise<any> {
 		const resp = await this.caller.call('market', 'GET', '/user')
 		
 		if(!this.#userId && resp?.user?.user_id)
@@ -49,7 +49,7 @@ export class LZTApiMarketGroup extends LZTApiGroup {
 		pmin, pmax,
 		title,
 		...categoryParams
-	}) {
+	}: Record<string, any> = {}): Promise<any> {
 		if(!userId)
 			userId = await this.#getMyUserId()
 		
@@ -67,7 +67,7 @@ export class LZTApiMarketGroup extends LZTApiGroup {
 		receiver, sender,
 		startDate, endDate,
 		wallet, comment, isHold
-	} = {}) {
+	}: Record<string, any> = {}): Promise<any> {
 		if(!userId)
 			userId = await this.#getMyUserId()
 		
@@ -86,7 +86,7 @@ export class LZTApiMarketGroup extends LZTApiGroup {
 		pmin, pmax,
 		title,
 		...categoryParams
-	} = {}) {
+	}: Record<string, any> = {}): Promise<any> {
 		if(!userId)
 			userId = await this.#getMyUserId()
 		
@@ -98,35 +98,35 @@ export class LZTApiMarketGroup extends LZTApiGroup {
 		})
 	}
 	
-	async getFave() {
+	async getFave(): Promise<any> {
 		return await this.caller.call('market', 'GET', '/fave')
 	}
 	
-	async getViewed() {
+	async getViewed(): Promise<any> {
 		return await this.caller.call('market', 'GET', '/viewed')
 	}
 	
-	async getItem({ itemId } = {}) {
+	async getItem({ itemId }: Record<string, any> = {}): Promise<any> {
 		return await this.caller.call('market', 'GET', `/${itemId}`)
 	}
 	
-	async reserve({ itemId, price } = {}) {
+	async reserve({ itemId, price }: Record<string, any> = {}): Promise<any> {
 		return await this.caller.call('market', 'POST', `/${itemId}/reserve`, { price })
 	}
 	
-	async cancelReserve({ itemId } = {}) {
+	async cancelReserve({ itemId }: Record<string, any> = {}): Promise<any> {
 		return await this.caller.call('market', 'POST', `/${itemId}/cancel-reserve`)
 	}
 	
-	async checkAccount({ itemId } = {}) {
+	async checkAccount({ itemId }: Record<string, any> = {}): Promise<any> {
 		return await this.caller.call('market', 'POST', `/${itemId}/check-account`)
 	}
 	
-	async confirmBuy({ itemId } = {}) {
+	async confirmBuy({ itemId }: Record<string, any> = {}): Promise<any> {
 		return await this.caller.call('market', 'POST', `/${itemId}/confirm-buy`)
 	}
 
-	async fastBuy({ itemId, price, skipValidation} = {}) {
+	async fastBuy({ itemId, price, skipValidation }: Record<string, any> = {}): Promise<any> {
 		return await this.caller.call('market', 'POST', `/${itemId}/fast-buy`, {
 			buy_without_validation: skipValidation ? 1 : undefined,
 			price
@@ -139,7 +139,7 @@ export class LZTApiMarketGroup extends LZTApiGroup {
 		secretAnswer,
 		holdLengthValue,
 		holdLengthOption
-	} = {}) {
+	}: Record<string, any> = {}): Promise<any> {
 		return await this.caller.call('market', 'POST', '/balance/transfer/', {
 			user_id: userId,
 			username, amount, currency,
@@ -160,7 +160,7 @@ export class LZTApiMarketGroup extends LZTApiGroup {
 		emailLoginData,
 		emailType,
 		allowAskDiscount
-	} = {}) {
+	}: Record<string, any> = {}): Promise<any> {
 		return await this.caller.call('market', 'POST', '/item/add/', {
 			title,
 			title_en: titleEn,
@@ -175,24 +175,26 @@ export class LZTApiMarketGroup extends LZTApiGroup {
 			allow_ask_discount: allowAskDiscount
 		})
 	}
-	async getNotPublishedItem({ itemId, resellItemId } = {}) {
+
+	async getNotPublishedItem({ itemId, resellItemId }: Record<string, any> = {}): Promise<any> {
 		return await this.caller.call('market', 'GET', `/${itemId}/goods/add/`, { resell_item_id: resellItemId })
 	}
-	async checkItem({ itemId, closeItem } = {}) {
+
+	async checkItem({ itemId, closeItem }: Record<string, any> = {}): Promise<any> {
 		return await this.caller.call('market', 'POST', `/${itemId}/goods/check`, {
 			close_item: closeItem
 		})
 	}
 	
-	async getEmailCode({ itemId, email } = {}) {
+	async getEmailCode({ itemId, email }: Record<string, any> = {}): Promise<any> {
 		return await this.caller.call('market', 'GET', `/${itemId}/email-code/`, { email })
 	}
 
-	async refuseGuarantee({ itemId } = {}) {
+	async refuseGuarantee({ itemId }: Record<string, any> = {}): Promise<any> {
 		return await this.caller.call('market', 'POST', `/${itemId}/refuse-guarantee`)
 	}
 	
-	async changePassword({ itemId, _cancel } = {}) {
+	async changePassword({ itemId, _cancel }: Record<string, any> = {}): Promise<any> {
 		return await this.caller.call('market', 'POST', `/${itemId}/change-password`, {
 			_cancel: _cancel ? 1 : undefined
 		})
@@ -200,10 +202,10 @@ export class LZTApiMarketGroup extends LZTApiGroup {
 	
 	async editItem({
 		itemId, currency, ...fields
-	} = {}) {
-		const params = { currency }
+	}: Record<string, any> = {}): Promise<any> {
+		const params: Record<string, any> = { currency }
 		
-		const transformField = field =>
+		const transformField = (field: string) =>
 			field.replace(/[A-Z]/g, char => `_${char.toLowerCase()}`)
 		
 		for(const key of Object.keys(fields))
@@ -216,92 +218,92 @@ export class LZTApiMarketGroup extends LZTApiGroup {
 		return await this.caller.call('market', 'POST', `/${itemId}/edit/`, params)
 	}
 	
-	async addTag({ itemId, tagId } = {}) {
+	async addTag({ itemId, tagId }: Record<string, any> = {}): Promise<any> {
 		return await this.caller.call('market', 'POST', `/${itemId}/tag/`, { tag_id: tagId })
 	}
 	
-	async deleteTag({ itemId, tagId } = {}) {
+	async deleteTag({ itemId, tagId }: Record<string, any> = {}): Promise<any> {
 		return await this.caller.call('market', 'DELETE', `/${itemId}/tag/`, { tag_id: tagId })
 	}
 
-	async deleteItem({ itemId, reason } = {}) {
+	async deleteItem({ itemId, reason }: Record<string, any> = {}): Promise<any> {
 		return await this.caller.call('market', 'DELETE', `/${itemId}`, { reason })
 	}
 
-	async getMafile({ itemId } = {}) {
+	async getMafile({ itemId }: Record<string, any> = {}): Promise<any> {
 		return await this.caller.call('market', 'GET', `/${itemId}/mafile/`)
 	}
 
-	async getGuardCode({ itemId } = {}) {
+	async getGuardCode({ itemId }: Record<string, any> = {}): Promise<any> {
 		return await this.caller.call('market', 'GET', `/${itemId}/guard-code/`)
 	}
 
-	async getTelegramCode({ itemId } = {}) {
+	async getTelegramCode({ itemId }: Record<string, any> = {}): Promise<any> {
 		return await this.caller.call('market', 'GET', `/${itemId}/telegram-login-code/`)
 	}
 
-	async resetTelegramAuth({ itemId } = {}) {
+	async resetTelegramAuth({ itemId }: Record<string, any> = {}): Promise<any> {
 		return await this.caller.call('market', 'POST', `/${itemId}/telegram-reset-authorizations/`)
 	}
 
-	async getTempEmailPassword({ itemId } = {}) {
+	async getTempEmailPassword({ itemId }: Record<string, any> = {}): Promise<any> {
 		return await this.caller.call('market', 'GET', `/${itemId}/temp-email-password/`)
 	}
 
-	async fave({ itemId } = {}) {
+	async fave({ itemId }: Record<string, any> = {}): Promise<any> {
 		return await this.caller.call('market', 'POST', `/${itemId}/star/`)
 	}
 
-	async unFave({ itemId } = {}) {
+	async unFave({ itemId }: Record<string, any> = {}): Promise<any> {
 		return await this.caller.call('market', 'DELETE', `/${itemId}/star/`)
 	}
 
-	async stickItem({ itemId } = {}) {
+	async stickItem({ itemId }: Record<string, any> = {}): Promise<any> {
 		return await this.caller.call('market', 'POST', `/${itemId}/stick/`)
 	}
 
-	async unstickItem({ itemId } = {}) {
+	async unstickItem({ itemId }: Record<string, any> = {}): Promise<any> {
 		return await this.caller.call('market', 'DELETE', `/${itemId}/stick/`)
 	}
 
-	async changeOwner({ itemId, username, secretAnswer } = {}) {
+	async changeOwner({ itemId, username, secretAnswer }: Record<string, any> = {}): Promise<any> {
 		return await this.caller.call('market', 'POST', `/${itemId}/change-owner/`, {
 			username,
 			secret_answer: secretAnswer
 		})
 	}
 
-	async steamValue({ link, appId, currency, ignoreCache } = {}) {
+	async steamValue({ link, appId, currency, ignoreCache }: Record<string, any> = {}): Promise<any> {
 		return await this.caller.call('market', 'GET', `/steam-value/`, {
 			link, app_id: appId, currency, ignore_cache: ignoreCache ? 1 : 0
 		})
 	}
 
-	async steamPreview({ itemId, type } = {}) {
+	async steamPreview({ itemId, type }: Record<string, any> = {}): Promise<any> {
 		return await this.caller.call('market', 'GET', `/${itemId}/steam-preview/`, { type })
 	}
 
-	async getCategoryParams({ categoryName } = {}) {
+	async getCategoryParams({ categoryName }: Record<string, any> = {}): Promise<any> {
 		return await this.caller.call('market', 'GET', `/${categoryName}/params/`)
 	}
 
-	async getGames({ categoryName } = {}) {
+	async getGames({ categoryName }: Record<string, any> = {}): Promise<any> {
 		return await this.caller.call('market', 'GET', `/${categoryName}/games/`)
 	}
 
-	async bumpItem({ itemId } = {}) {
+	async bumpItem({ itemId }: Record<string, any> = {}): Promise<any> {
 		return await this.caller.call('market', 'POST', `/${itemId}/bump/`)
 	}
 
-	async getCategories({ topQueries } = {}) {
+	async getCategories({ topQueries }: Record<string, any> = {}): Promise<any> {
 		return await this.caller.call('market', 'GET', `/category/`, { top_queries: topQueries ? 1 : 0 })
 	}
 
-	async getMe() {
+	async getMe(): Promise<any> {
 		return await this.caller.call('market', 'GET', `/me/`)
 	}
 
-	async editMe({ disableSteamGuard, userAllowAskDiscount, maxDiscountPercent, allowAcceptAccounts, hideFavorites, vkUa } = {}) {
+	async editMe({ disableSteamGuard, userAllowAskDiscount, maxDiscountPercent, allowAcceptAccounts, hideFavorites, vkUa }: Record<string, any> = {}): Promise<any> {
 		return await this.caller.call('market', 'PUT', `/me/`, {
 			disable_steam_guard: disableSteamGuard,
 			user_allow_ask_discount: userAllowAskDiscount,
@@ -312,11 +314,11 @@ export class LZTApiMarketGroup extends LZTApiGroup {
 		})
 	}
 
-	async getProxys() {
+	async getProxys(): Promise<any> {
 		return await this.caller.call('market', 'GET', `/proxy/`)
 	}
 
-	async addProxy({ proxyIP, proxyPort, proxyLogin, proxyPassword, proxyRow } = {}) {
+	async addProxy({ proxyIP, proxyPort, proxyLogin, proxyPassword, proxyRow }: Record<string, any> = {}): Promise<any> {
 		return await this.caller.call('market', 'POST', `/proxy/`, {
 			proxy_ip: proxyIP,
 			proxy_port: proxyPort,
@@ -326,7 +328,7 @@ export class LZTApiMarketGroup extends LZTApiGroup {
 		})
 	}
 
-	async deleteProxy({ proxyId, deleteAll } = {}) {
+	async deleteProxy({ proxyId, deleteAll }: Record<string, any> = {}): Promise<any> {
 		return await this.caller.call('market', 'DELETE', `/proxy/`, {
 			proxy_id: proxyId,
 			delete_all: deleteAll ? 1 : 0
@@ -342,7 +344,8 @@ export class LZTApiMarketGroup extends LZTApiGroup {
 		login, password, loginPassword,
 		hasEmailLoginData, EmailLoginData,
 		closeItem, emailType, allowAskDiscount,
-		proxyId, randomProxy, extraData } = {}) {
+		proxyId, randomProxy, extraData
+	}: Record<string, any> = {}): Promise<any> {
 		return await this.caller.call('market', 'POST', `/item/fast-sell`, {
 			title, title_en: titleEn,
 			price, category_id: categoryId,
@@ -361,20 +364,20 @@ export class LZTApiMarketGroup extends LZTApiGroup {
 		})
 	}
 
-    async getAuction({ itemId } = {}){
-        return await this.caller.call('market', 'GET', `/${itemId}/auction`)
-    }
+	async getAuction({ itemId }: Record<string, any> = {}): Promise<any> {
+		return await this.caller.call('market', 'GET', `/${itemId}/auction`)
+	}
 
-    async addBid({ itemId, currency, amount } = {}){
-        return await this.caller.call('market', 'POST', `/${itemId}/auction/bid`, {
-            currency,
-            amount
-        })
-    }
+	async addBid({ itemId, currency, amount }: Record<string, any> = {}): Promise<any> {
+		return await this.caller.call('market', 'POST', `/${itemId}/auction/bid`, {
+			currency,
+			amount
+		})
+	}
 
-    async removeBid({ itemId, bidId } = {}) {
-        return await this.caller.call('market', 'DELETE', `/${itemId}/auction/bid`, {
-            bid_id: bidId
-        })
-    }
+	async removeBid({ itemId, bidId }: Record<string, any> = {}): Promise<any> {
+		return await this.caller.call('market', 'DELETE', `/${itemId}/auction/bid`, {
+			bid_id: bidId
+		})
+	}
 }

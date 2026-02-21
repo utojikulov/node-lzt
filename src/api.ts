@@ -1,8 +1,18 @@
 import * as LZTApiGroups from './api/index.js'
 import { LZTApiCaller } from './caller.js'
+import type { LZTApiCallerOptions } from './caller.js'
+
+interface LZTApiOptions extends LZTApiCallerOptions {
+	baseURLMarket?: string
+	baseURLForum?: string
+	locale?: string
+}
 
 export class LZTApi {
-	constructor(options) {
+	options: LZTApiOptions
+	caller: LZTApiCaller
+
+	constructor(options: LZTApiOptions) {
 		this.options = {
 			baseURLMarket: 'https://api.lzt.market/',
 			baseURLForum: 'https://api.zelenka.guru/',
@@ -13,9 +23,9 @@ export class LZTApi {
 		this.caller = new LZTApiCaller(this.options)
 		
 		for(const key in LZTApiGroups) {
-			const Group = LZTApiGroups[key]
+			const Group = LZTApiGroups[key as keyof typeof LZTApiGroups] as any
 			const group = new Group(this.caller)
-			this[Group.name] = group
+			;(this as any)[Group.apiName] = group
 		}
 	}
 }
