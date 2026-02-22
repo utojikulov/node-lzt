@@ -1,104 +1,141 @@
 import { LZTApiGroup } from '../apiGroup.js'
+import type {
+	GetUsersParams,
+	CreateUserParams,
+	GetUserParams,
+	EditUserParams,
+	SetAvatarParams,
+	DeleteAvatarParams,
+	GetFollowersParams,
+	FollowParams,
+	UnfollowParams,
+	GetFollowingsParams,
+	IgnoreParams,
+	UnignoreParams,
+	GetUserGroupsParams,
+	ForumUser,
+	ForumResponse
+} from '../types/index.js'
 
 export class LZTApiUsersGroup extends LZTApiGroup {
 	static readonly apiName = 'users'
 	
-	async getUsers({ page, limit }: Record<string, any> = {}): Promise<any> {
-		return await this.caller.call('forum', 'GET', '/users', { page, limit })
+	async getUsers(params?: GetUsersParams): Promise<ForumResponse> {
+		return await this.caller.call('forum', 'GET', '/users', params ?? {})
 	}
 	
-	async create({
-		userEmail, username, password, passwordAlgo,
-		userDobDay, userDobMonth, userDobYear,
-		fields, clientId, extraData, extraTimestamp
-	}: Record<string, any> = {}): Promise<any> {
+	async create(params?: CreateUserParams): Promise<ForumResponse> {
+		if (!params) params = {}
 		return await this.caller.call('forum', 'POST', '/users', {
-			user_email: userEmail,
-			username,
-			password,
-			password_algo: passwordAlgo,
-			user_dob_day: userDobDay,
-			user_dob_month: userDobMonth,
-			user_dob_year: userDobYear,
-			fields,
-			client_id: clientId,
-			extra_data: extraData,
-			extra_timestamp: extraTimestamp
+			user_email: params.userEmail,
+			username: params.username,
+			password: params.password,
+			password_algo: params.passwordAlgo,
+			user_dob_day: params.userDobDay,
+			user_dob_month: params.userDobMonth,
+			user_dob_year: params.userDobYear,
+			fields: params.fields,
+			client_id: params.clientId,
+			extra_data: params.extraData,
+			extra_timestamp: params.extraTimestamp
 		})
 	}
 	
-	async getFields(): Promise<any> {
+	async getFields(): Promise<ForumResponse> {
 		return await this.caller.call('forum', 'GET', '/users/fields')
 	}
 	
-	async getUser({ userId = 'me' }: Record<string, any> = {}): Promise<any> {
+	async getUser(params?: GetUserParams): Promise<ForumUser> {
+		const userId = params?.userId ?? 'me'
 		return await this.caller.call('forum', 'GET', `/users/${userId}`)
 	}
 	
-	async edit({
-		userId = 'me', fields,
-		password, passwordOld, passwordAlgo,
-		userEmail, username, userTitle,
-		primaryGroupId, secondaryGroupIds,
-		userDobDay, userDobMonth, userDobYear
-	}: Record<string, any> = {}): Promise<any> {
+	async edit(params?: EditUserParams): Promise<ForumResponse> {
+		if (!params) params = {}
+		const userId = params.userId ?? 'me'
 		return await this.caller.call('forum', 'PUT', `/users/${userId}`, {
-			password,
-			password_old: passwordOld,
-			password_algo: passwordAlgo,
-			user_email: userEmail,
-			username, 
-			user_title: userTitle,
-			primary_group_id: primaryGroupId,
-			secondary_group_ids: secondaryGroupIds,
-			user_dob_day: userDobDay,
-			user_dob_month: userDobMonth,
-			user_dob_year: userDobYear,
-			fields
+			password: params.password,
+			password_old: params.passwordOld,
+			password_algo: params.passwordAlgo,
+			user_email: params.userEmail,
+			username: params.username, 
+			user_title: params.userTitle,
+			primary_group_id: params.primaryGroupId,
+			secondary_group_ids: params.secondaryGroupIds,
+			user_dob_day: params.userDobDay,
+			user_dob_month: params.userDobMonth,
+			user_dob_year: params.userDobYear,
+			fields: params.fields
 		})
 	}
 	
-	async setAvatar({ userId = 'me', avatar }: Record<string, any> = {}): Promise<any> {
-		return await this.caller.call('forum', 'POST', `/users/${userId}/avatar`, { avatar })
+	async setAvatar(params?: SetAvatarParams): Promise<ForumResponse> {
+		if (!params) params = {}
+		const userId = params.userId ?? 'me'
+		return await this.caller.call('forum', 'POST', `/users/${userId}/avatar`, { avatar: params.avatar })
 	}
 	
-	async deleteAvatar({ userId = 'me' }: Record<string, any> = {}): Promise<any> {
+	async deleteAvatar(params?: DeleteAvatarParams): Promise<ForumResponse> {
+		if (!params) params = {}
+		const userId = params.userId ?? 'me'
 		return await this.caller.call('forum', 'DELETE', `/users/${userId}/avatar`)
 	}
 	
-	async getFollowers({ userId = 'me', order, page, limit }: Record<string, any> = {}): Promise<any> {
-		return await this.caller.call('forum', 'GET', `/users/${userId}/followers`, { order, page, limit })
+	async getFollowers(params?: GetFollowersParams): Promise<ForumResponse> {
+		if (!params) params = {}
+		const userId = params.userId ?? 'me'
+		return await this.caller.call('forum', 'GET', `/users/${userId}/followers`, { 
+			order: params.order, 
+			page: params.page, 
+			limit: params.limit 
+		})
 	}
 	
-	async follow({ userId = 'me' }: Record<string, any> = {}): Promise<any> {
+	async follow(params?: FollowParams): Promise<ForumResponse> {
+		if (!params) params = {}
+		const userId = params.userId ?? 'me'
 		return await this.caller.call('forum', 'POST', `/users/${userId}/followers`)
 	}
 	
-	async unfollow({ userId = 'me' }: Record<string, any> = {}): Promise<any> {
+	async unfollow(params?: UnfollowParams): Promise<ForumResponse> {
+		if (!params) params = {}
+		const userId = params.userId ?? 'me'
 		return await this.caller.call('forum', 'DELETE', `/users/${userId}/followers`)
 	}
 	
-	async getFollowings({ userId = 'me', order, page, limit }: Record<string, any> = {}): Promise<any> {
-		return await this.caller.call('forum', 'GET', `/users/${userId}/followings`, { order, page, limit })
+	async getFollowings(params?: GetFollowingsParams): Promise<ForumResponse> {
+		if (!params) params = {}
+		const userId = params.userId ?? 'me'
+		return await this.caller.call('forum', 'GET', `/users/${userId}/followings`, { 
+			order: params.order, 
+			page: params.page, 
+			limit: params.limit 
+		})
 	}
 	
-	async getIgnored(): Promise<any> {
+	async getIgnored(): Promise<ForumResponse> {
 		return await this.caller.call('forum', 'GET', '/users/ignored')
 	}
 	
-	async ignore({ userId = 'me' }: Record<string, any> = {}): Promise<any> {
-		return await this.caller.call('forum', 'GET', `/users/${userId}/ignore`)
+	async ignore(params?: IgnoreParams): Promise<ForumResponse> {
+		if (!params) params = {}
+		const userId = params.userId ?? 'me'
+		return await this.caller.call('forum', 'POST', `/users/${userId}/ignore`)
 	}
 	
-	async uningore({ userId = 'me' }: Record<string, any> = {}): Promise<any> {
+	async unignore(params?: UnignoreParams): Promise<ForumResponse> {
+		if (!params) params = {}
+		const userId = params.userId ?? 'me'
 		return await this.caller.call('forum', 'DELETE', `/users/${userId}/ignore`)
 	}
 	
-	async getGroups(): Promise<any> {
+	async getGroups(): Promise<ForumResponse> {
 		return await this.caller.call('forum', 'GET', '/users/groups')
 	}
 	
-	async getUserGroups({ userId = 'me' }: Record<string, any> = {}): Promise<any> {
+	async getUserGroups(params?: GetUserGroupsParams): Promise<ForumResponse> {
+		if (!params) params = {}
+		const userId = params.userId ?? 'me'
 		return await this.caller.call('forum', 'GET', `/users/${userId}/groups`)
 	}
 }

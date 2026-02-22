@@ -1,383 +1,586 @@
-import { LZTApiGroup } from '../apiGroup.js'
-import { LZTApiError } from '../errors.js'
+import { LZTApiGroup } from "../apiGroup.js"
+import { LZTApiError } from "../errors.js"
+import type {
+    SearchParams,
+    SearchResponse,
+    GetUserResponse,
+    GetUserItemsParams,
+    GetPaymentsParams,
+    GetOrdersParams,
+    FastBuyParams,
+    TransferParams,
+    AddItemParams,
+    FastSellParams,
+    AddProxyParams,
+    DeleteProxyParams,
+    EditItemParams,
+    GetItemParams,
+    ReserveParams,
+    CancelReserveParams,
+    CheckAccountParams,
+    ConfirmBuyParams,
+    TagParams,
+    DeleteItemParams,
+    GetMafileParams,
+    GetGuardCodeParams,
+    GetTelegramCodeParams,
+    ResetTelegramAuthParams,
+    GetTempEmailPasswordParams,
+    FaveParams,
+    StickParams,
+    ChangeOwnerParams,
+    SteamValueParams,
+    SteamPreviewParams,
+    GetCategoryParamsParams,
+    GetGamesParams,
+    BumpItemParams,
+    GetCategoriesParams,
+    EditMeParams,
+    AddBidParams,
+    RemoveBidParams,
+    GetAuctionParams,
+    GetNotPublishedItemParams,
+    CheckItemParams,
+    GetEmailCodeParams,
+    RefuseGuaranteeParams,
+    ChangePasswordParams,
+    MarketResponse
+} from '../types/index.js'
 
 export class LZTApiMarketGroup extends LZTApiGroup {
-	static readonly apiName = 'market'
-	
-	#userId: number | null = null
-	
-	async #getMyUserId(): Promise<number> {
-		if(!this.#userId)
-			await this.getUser()
-		
-		if(!this.#userId)
-			throw new LZTApiError('Cannot get my userId')
-		
-		return this.#userId
-	}
-	
-	async search({
-		categoryName = null,
-		pmin, pmax, title,
-		showStickyItems,
-		...categoryParams
-	}: Record<string, any> = {}): Promise<any> {
-		return await this.caller.call(
-			'market',
-			'GET',
-			categoryName ? `/${categoryName}` : '/',
-			{
-				pmin, pmax, title,
-				showStickyItems: showStickyItems ? 1 : undefined,
-				...categoryParams
-			}
-		)
-	}
-	
-	async getUser(): Promise<any> {
-		const resp = await this.caller.call('market', 'GET', '/user')
-		
-		if(!this.#userId && resp?.user?.user_id)
-			this.#userId = resp.user.user_id
-		
-		return resp
-	}
-	
-	async getUserItems({
-		userId = null,
-		categoryId,
-		pmin, pmax,
-		title,
-		...categoryParams
-	}: Record<string, any> = {}): Promise<any> {
-		if(!userId)
-			userId = await this.#getMyUserId()
-		
-		return await this.caller.call('market', 'GET', `/user/${userId}/items/`, {
-			category_id: categoryId,
-			pmin, pmax,
-			title,
-			...categoryParams
-		})
-	}
-	
-	async getPayments({
-		userId = null,
-		type, pmin, pmax,
-		receiver, sender,
-		startDate, endDate,
-		wallet, comment, isHold
-	}: Record<string, any> = {}): Promise<any> {
-		if(!userId)
-			userId = await this.#getMyUserId()
-		
-		return await this.caller.call('market', 'GET', `/user/${userId}/payments`, {
-			type, pmin, pmax,
-			receiver, sender,
-			startDate, endDate,
-			wallet, comment,
-			is_hold: isHold ? 1 : undefined
-		})
-	}
-	
-	async getOrders({
-		userId = null,
-		categoryId,
-		pmin, pmax,
-		title,
-		...categoryParams
-	}: Record<string, any> = {}): Promise<any> {
-		if(!userId)
-			userId = await this.#getMyUserId()
-		
-		return await this.caller.call('market', 'GET', `/user/${userId}/orders`, {
-			category_id: categoryId,
-			pmin, pmax,
-			title,
-			...categoryParams
-		})
-	}
-	
-	async getFave(): Promise<any> {
-		return await this.caller.call('market', 'GET', '/fave')
-	}
-	
-	async getViewed(): Promise<any> {
-		return await this.caller.call('market', 'GET', '/viewed')
-	}
-	
-	async getItem({ itemId }: Record<string, any> = {}): Promise<any> {
-		return await this.caller.call('market', 'GET', `/${itemId}`)
-	}
-	
-	async reserve({ itemId, price }: Record<string, any> = {}): Promise<any> {
-		return await this.caller.call('market', 'POST', `/${itemId}/reserve`, { price })
-	}
-	
-	async cancelReserve({ itemId }: Record<string, any> = {}): Promise<any> {
-		return await this.caller.call('market', 'POST', `/${itemId}/cancel-reserve`)
-	}
-	
-	async checkAccount({ itemId }: Record<string, any> = {}): Promise<any> {
-		return await this.caller.call('market', 'POST', `/${itemId}/check-account`)
-	}
-	
-	async confirmBuy({ itemId }: Record<string, any> = {}): Promise<any> {
-		return await this.caller.call('market', 'POST', `/${itemId}/confirm-buy`)
-	}
+    static readonly apiName = "market"
 
-	async fastBuy({ itemId, price, skipValidation }: Record<string, any> = {}): Promise<any> {
-		return await this.caller.call('market', 'POST', `/${itemId}/fast-buy`, {
-			buy_without_validation: skipValidation ? 1 : undefined,
-			price
-		})
-	}
-	
-	async transfer({
-		userId, username,
-		amount, currency,
-		secretAnswer,
-		holdLengthValue,
-		holdLengthOption
-	}: Record<string, any> = {}): Promise<any> {
-		return await this.caller.call('market', 'POST', '/balance/transfer/', {
-			user_id: userId,
-			username, amount, currency,
-			secret_answer: secretAnswer,
-			transfer_hold: holdLengthValue ? 1 : undefined,
-			hold_length_value: holdLengthValue,
-			hold_length_option: holdLengthOption
-		})
-	}
-	
-	async addItem({
-		title, titleEn,
-		price,
-		categoryId,
-		currency,
-		itemOrigin,
-		description, information,
-		emailLoginData,
-		emailType,
-		allowAskDiscount
-	}: Record<string, any> = {}): Promise<any> {
-		return await this.caller.call('market', 'POST', '/item/add/', {
-			title,
-			title_en: titleEn,
-			price,
-			category_id: categoryId,
-			currency,
-			item_origin: itemOrigin,
-			description, information,
-			has_email_login_data: emailLoginData ? 1 : undefined,
-			email_login_data: emailLoginData,
-			email_type: emailType,
-			allow_ask_discount: allowAskDiscount
-		})
-	}
+    #userId: number | null = null
 
-	async getNotPublishedItem({ itemId, resellItemId }: Record<string, any> = {}): Promise<any> {
-		return await this.caller.call('market', 'GET', `/${itemId}/goods/add/`, { resell_item_id: resellItemId })
-	}
+    async #getMyUserId(): Promise<number> {
+        if (!this.#userId) await this.getUser()
 
-	async checkItem({ itemId, closeItem }: Record<string, any> = {}): Promise<any> {
-		return await this.caller.call('market', 'POST', `/${itemId}/goods/check`, {
-			close_item: closeItem
-		})
-	}
-	
-	async getEmailCode({ itemId, email }: Record<string, any> = {}): Promise<any> {
-		return await this.caller.call('market', 'GET', `/${itemId}/email-code/`, { email })
-	}
+        if (!this.#userId) throw new LZTApiError("Cannot get my userId")
 
-	async refuseGuarantee({ itemId }: Record<string, any> = {}): Promise<any> {
-		return await this.caller.call('market', 'POST', `/${itemId}/refuse-guarantee`)
-	}
-	
-	async changePassword({ itemId, _cancel }: Record<string, any> = {}): Promise<any> {
-		return await this.caller.call('market', 'POST', `/${itemId}/change-password`, {
-			_cancel: _cancel ? 1 : undefined
-		})
-	}
-	
-	async editItem({
-		itemId, currency, ...fields
-	}: Record<string, any> = {}): Promise<any> {
-		const params: Record<string, any> = { currency }
-		
-		const transformField = (field: string) =>
-			field.replace(/[A-Z]/g, char => `_${char.toLowerCase()}`)
-		
-		for(const key of Object.keys(fields))
-			params[`key_values[${transformField(key)}]`] = typeof fields[key] === 'boolean'
-				? fields[key]
-					? 1
-					: undefined
-				: fields[key]
-		
-		return await this.caller.call('market', 'POST', `/${itemId}/edit/`, params)
-	}
-	
-	async addTag({ itemId, tagId }: Record<string, any> = {}): Promise<any> {
-		return await this.caller.call('market', 'POST', `/${itemId}/tag/`, { tag_id: tagId })
-	}
-	
-	async deleteTag({ itemId, tagId }: Record<string, any> = {}): Promise<any> {
-		return await this.caller.call('market', 'DELETE', `/${itemId}/tag/`, { tag_id: tagId })
-	}
+        return this.#userId
+    }
 
-	async deleteItem({ itemId, reason }: Record<string, any> = {}): Promise<any> {
-		return await this.caller.call('market', 'DELETE', `/${itemId}`, { reason })
-	}
+    async search(params?: SearchParams): Promise<SearchResponse> {
+        if (!params) params = {}
+        const { categoryName, ...rest } = params
+        return await this.caller.call<SearchResponse>(
+            "market",
+            "GET",
+            categoryName ? `/${categoryName}` : "/",
+            {
+                ...rest,
+                showStickyItems: params.showStickyItems ? 1 : undefined,
+            },
+        )
+    }
 
-	async getMafile({ itemId }: Record<string, any> = {}): Promise<any> {
-		return await this.caller.call('market', 'GET', `/${itemId}/mafile/`)
-	}
+    async getUser(): Promise<GetUserResponse> {
+        const resp = await this.caller.call<GetUserResponse>(
+            "market",
+            "GET",
+            "/user",
+        )
 
-	async getGuardCode({ itemId }: Record<string, any> = {}): Promise<any> {
-		return await this.caller.call('market', 'GET', `/${itemId}/guard-code/`)
-	}
+        if (!this.#userId && resp?.user?.user_id) this.#userId = resp.user.user_id
 
-	async getTelegramCode({ itemId }: Record<string, any> = {}): Promise<any> {
-		return await this.caller.call('market', 'GET', `/${itemId}/telegram-login-code/`)
-	}
+        return resp
+    }
 
-	async resetTelegramAuth({ itemId }: Record<string, any> = {}): Promise<any> {
-		return await this.caller.call('market', 'POST', `/${itemId}/telegram-reset-authorizations/`)
-	}
+    async getUserItems(params?: GetUserItemsParams): Promise<SearchResponse> {
+        if (!params) params = {}
+        let { userId, ...rest } = params
+        if (!userId) userId = await this.#getMyUserId()
 
-	async getTempEmailPassword({ itemId }: Record<string, any> = {}): Promise<any> {
-		return await this.caller.call('market', 'GET', `/${itemId}/temp-email-password/`)
-	}
+        return await this.caller.call<SearchResponse>(
+            "market",
+            "GET",
+            `/user/${userId}/items/`,
+            {
+                category_id: rest.categoryId,
+                pmin: rest.pmin,
+                pmax: rest.pmax,
+                title: rest.title,
+                ...rest,
+            },
+        )
+    }
 
-	async fave({ itemId }: Record<string, any> = {}): Promise<any> {
-		return await this.caller.call('market', 'POST', `/${itemId}/star/`)
-	}
+    async getPayments(params?: GetPaymentsParams): Promise<MarketResponse> {
+        if (!params) params = {}
+        let { userId, ...rest } = params
+        if (!userId) userId = await this.#getMyUserId()
 
-	async unFave({ itemId }: Record<string, any> = {}): Promise<any> {
-		return await this.caller.call('market', 'DELETE', `/${itemId}/star/`)
-	}
+        return await this.caller.call("market", "GET", `/user/${userId}/payments`, {
+            type: rest.type,
+            pmin: rest.pmin,
+            pmax: rest.pmax,
+            receiver: rest.receiver,
+            sender: rest.sender,
+            startDate: rest.startDate,
+            endDate: rest.endDate,
+            wallet: rest.wallet,
+            comment: rest.comment,
+            is_hold: rest.isHold ? 1 : undefined,
+        })
+    }
 
-	async stickItem({ itemId }: Record<string, any> = {}): Promise<any> {
-		return await this.caller.call('market', 'POST', `/${itemId}/stick/`)
-	}
+    async getOrders(params?: GetOrdersParams): Promise<SearchResponse> {
+        if (!params) params = {}
+        let { userId, ...rest } = params
+        if (!userId) userId = await this.#getMyUserId()
 
-	async unstickItem({ itemId }: Record<string, any> = {}): Promise<any> {
-		return await this.caller.call('market', 'DELETE', `/${itemId}/stick/`)
-	}
+        return await this.caller.call<SearchResponse>(
+            "market",
+            "GET",
+            `/user/${userId}/orders`,
+            {
+                category_id: rest.categoryId,
+                pmin: rest.pmin,
+                pmax: rest.pmax,
+                title: rest.title,
+                ...rest
+            },
+        )
+    }
 
-	async changeOwner({ itemId, username, secretAnswer }: Record<string, any> = {}): Promise<any> {
-		return await this.caller.call('market', 'POST', `/${itemId}/change-owner/`, {
-			username,
-			secret_answer: secretAnswer
-		})
-	}
+    async getFave(): Promise<SearchResponse> {
+        return await this.caller.call<SearchResponse>("market", "GET", "/fave")
+    }
 
-	async steamValue({ link, appId, currency, ignoreCache }: Record<string, any> = {}): Promise<any> {
-		return await this.caller.call('market', 'GET', `/steam-value/`, {
-			link, app_id: appId, currency, ignore_cache: ignoreCache ? 1 : 0
-		})
-	}
+    async getViewed(): Promise<SearchResponse> {
+        return await this.caller.call<SearchResponse>("market", "GET", "/viewed")
+    }
 
-	async steamPreview({ itemId, type }: Record<string, any> = {}): Promise<any> {
-		return await this.caller.call('market', 'GET', `/${itemId}/steam-preview/`, { type })
-	}
+    async getItem(params?: GetItemParams): Promise<MarketResponse> {
+        if (!params) params = {}
+        return await this.caller.call("market", "GET", `/${params.itemId}`)
+    }
 
-	async getCategoryParams({ categoryName }: Record<string, any> = {}): Promise<any> {
-		return await this.caller.call('market', 'GET', `/${categoryName}/params/`)
-	}
+    async reserve(params?: ReserveParams): Promise<MarketResponse> {
+        if (!params) params = {}
+        return await this.caller.call(
+            "market",
+            "POST",
+            `/${params.itemId}/reserve`,
+            { price: params.price },
+        )
+    }
 
-	async getGames({ categoryName }: Record<string, any> = {}): Promise<any> {
-		return await this.caller.call('market', 'GET', `/${categoryName}/games/`)
-	}
+    async cancelReserve(params?: CancelReserveParams): Promise<MarketResponse> {
+        if (!params) params = {}
+        return await this.caller.call(
+            "market",
+            "POST",
+            `/${params.itemId}/cancel-reserve`,
+        )
+    }
 
-	async bumpItem({ itemId }: Record<string, any> = {}): Promise<any> {
-		return await this.caller.call('market', 'POST', `/${itemId}/bump/`)
-	}
+    async checkAccount(params?: CheckAccountParams): Promise<MarketResponse> {
+        if (!params) params = {}
+        return await this.caller.call(
+            "market",
+            "POST",
+            `/${params.itemId}/check-account`,
+        )
+    }
 
-	async getCategories({ topQueries }: Record<string, any> = {}): Promise<any> {
-		return await this.caller.call('market', 'GET', `/category/`, { top_queries: topQueries ? 1 : 0 })
-	}
+    async confirmBuy(params?: ConfirmBuyParams): Promise<MarketResponse> {
+        if (!params) params = {}
+        return await this.caller.call(
+            "market",
+            "POST",
+            `/${params.itemId}/confirm-buy`,
+        )
+    }
 
-	async getMe(): Promise<any> {
-		return await this.caller.call('market', 'GET', `/me/`)
-	}
+    async fastBuy(params?: FastBuyParams): Promise<MarketResponse> {
+        if (!params) params = {}
+        return await this.caller.call(
+            "market",
+            "POST",
+            `/${params.itemId}/fast-buy`,
+            {
+                buy_without_validation: params.skipValidation ? 1 : undefined,
+                price: params.price,
+            },
+        )
+    }
 
-	async editMe({ disableSteamGuard, userAllowAskDiscount, maxDiscountPercent, allowAcceptAccounts, hideFavorites, vkUa }: Record<string, any> = {}): Promise<any> {
-		return await this.caller.call('market', 'PUT', `/me/`, {
-			disable_steam_guard: disableSteamGuard,
-			user_allow_ask_discount: userAllowAskDiscount,
-			max_discount_percent: maxDiscountPercent,
-			allow_accept_accounts: allowAcceptAccounts,
-			hide_favorites: hideFavorites,
-			vk_ua: vkUa
-		})
-	}
+    async transfer(params?: TransferParams): Promise<MarketResponse> {
+        if (!params) params = {}
+        return await this.caller.call("market", "POST", "/balance/transfer/", {
+            user_id: params.userId,
+            username: params.username,
+            amount: params.amount,
+            currency: params.currency,
+            secret_answer: params.secretAnswer,
+            transfer_hold: params.holdLengthValue ? 1 : undefined,
+            hold_length_value: params.holdLengthValue,
+            hold_length_option: params.holdLengthOption,
+        })
+    }
 
-	async getProxys(): Promise<any> {
-		return await this.caller.call('market', 'GET', `/proxy/`)
-	}
+    async addItem(params?: AddItemParams): Promise<MarketResponse> {
+        if (!params) params = {}
+        return await this.caller.call("market", "POST", "/item/add/", {
+            title: params.title,
+            title_en: params.title_en,
+            price: params.price,
+            category_id: params.category_id,
+            currency: params.currency,
+            item_origin: params.item_origin,
+            description: params.description,
+            information: params.information,
+            has_email_login_data: params.has_email_login_data ? 1 : undefined,
+            email_login_data: params.email_login_data,
+            email_type: params.email_type,
+            allow_ask_discount: params.allow_ask_discount,
+        })
+    }
 
-	async addProxy({ proxyIP, proxyPort, proxyLogin, proxyPassword, proxyRow }: Record<string, any> = {}): Promise<any> {
-		return await this.caller.call('market', 'POST', `/proxy/`, {
-			proxy_ip: proxyIP,
-			proxy_port: proxyPort,
-			proxy_user: proxyLogin,
-			proxy_pass: proxyPassword,
-			proxy_row: proxyRow
-		})
-	}
+    async getNotPublishedItem(
+        params?: GetNotPublishedItemParams,
+    ): Promise<MarketResponse> {
+        if (!params) params = {}
+        return await this.caller.call(
+            "market",
+            "GET",
+            `/${params.itemId}/goods/add/`,
+            {
+                resell_item_id: params.resellItemId,
+            },
+        )
+    }
 
-	async deleteProxy({ proxyId, deleteAll }: Record<string, any> = {}): Promise<any> {
-		return await this.caller.call('market', 'DELETE', `/proxy/`, {
-			proxy_id: proxyId,
-			delete_all: deleteAll ? 1 : 0
-		})
-	}
+    async checkItem(params?: CheckItemParams): Promise<MarketResponse> {
+        if (!params) params = {}
+        return await this.caller.call(
+            "market",
+            "POST",
+            `/${params.itemId}/goods/check`,
+            {
+                close_item: params.closeItem,
+            },
+        )
+    }
 
-	async fastSell({
-		title, titleEn,
-		price, categoryId,
-		currency, itemOrigin,
-		extendedGuarantee,
-		description, information,
-		login, password, loginPassword,
-		hasEmailLoginData, EmailLoginData,
-		closeItem, emailType, allowAskDiscount,
-		proxyId, randomProxy, extraData
-	}: Record<string, any> = {}): Promise<any> {
-		return await this.caller.call('market', 'POST', `/item/fast-sell`, {
-			title, title_en: titleEn,
-			price, category_id: categoryId,
-			currency, item_origin: itemOrigin,
-			extended_guarantee: extendedGuarantee,
-			description, information,
-			login, password, login_password: loginPassword,
-			has_email_login_data: hasEmailLoginData,
-			email_login_data: EmailLoginData,
-			close_item: closeItem,
-			email_type: emailType,
-			allow_ask_discount: allowAskDiscount,
-			proxy_id: proxyId,
-			random_proxy: randomProxy,
-			extra: extraData
-		})
-	}
+    async getEmailCode(params?: GetEmailCodeParams): Promise<MarketResponse> {
+        if (!params) params = {}
+        return await this.caller.call(
+            "market",
+            "GET",
+            `/${params.itemId}/email-code/`,
+            {
+                email: params.email,
+            },
+        )
+    }
 
-	async getAuction({ itemId }: Record<string, any> = {}): Promise<any> {
-		return await this.caller.call('market', 'GET', `/${itemId}/auction`)
-	}
+    async refuseGuarantee(
+        params?: RefuseGuaranteeParams,
+    ): Promise<MarketResponse> {
+        if (!params) params = {}
+        return await this.caller.call(
+            "market",
+            "POST",
+            `/${params.itemId}/refuse-guarantee`,
+        )
+    }
 
-	async addBid({ itemId, currency, amount }: Record<string, any> = {}): Promise<any> {
-		return await this.caller.call('market', 'POST', `/${itemId}/auction/bid`, {
-			currency,
-			amount
-		})
-	}
+    async changePassword(params?: ChangePasswordParams): Promise<MarketResponse> {
+        if (!params) params = {}
+        return await this.caller.call(
+            "market",
+            "POST",
+            `/${params.itemId}/change-password`,
+            {
+                _cancel: params._cancel ? 1 : undefined,
+            },
+        )
+    }
 
-	async removeBid({ itemId, bidId }: Record<string, any> = {}): Promise<any> {
-		return await this.caller.call('market', 'DELETE', `/${itemId}/auction/bid`, {
-			bid_id: bidId
-		})
-	}
+    async editItem(params?: EditItemParams): Promise<MarketResponse> {
+        if (!params) params = {}
+        const { itemId, currency, ...fields } = params
+        const transformedParams: Record<string, unknown> = { currency }
+
+        const transformField = (field: string): string =>
+        field.replace(/[A-Z]/g, (char) => `_${char.toLowerCase()}`)
+
+        for (const key of Object.keys(fields)) {
+            const value = fields[key as keyof typeof fields]
+            transformedParams[`key_values[${transformField(key)}]`] =
+                typeof value === "boolean" ? (value ? 1 : undefined) : value
+        }
+
+        return await this.caller.call(
+            "market",
+            "POST",
+            `/${itemId}/edit/`,
+            transformedParams,
+        )
+    }
+
+    async addTag(params?: TagParams): Promise<MarketResponse> {
+        if (!params) params = {}
+        return await this.caller.call("market", "POST", `/${params.itemId}/tag/`, {
+            tag_id: params.tagId,
+        })
+    }
+
+    async deleteTag(params?: TagParams): Promise<MarketResponse> {
+        if (!params) params = {}
+        return await this.caller.call(
+            "market",
+            "DELETE",
+            `/${params.itemId}/tag/`,
+            {
+                tag_id: params.tagId,
+            },
+        )
+    }
+
+    async deleteItem(params?: DeleteItemParams): Promise<MarketResponse> {
+        if (!params) params = {}
+        return await this.caller.call("market", "DELETE", `/${params.itemId}`, {
+            reason: params.reason,
+        })
+    }
+
+    async getMafile(params?: GetMafileParams): Promise<MarketResponse> {
+        if (!params) params = {}
+        return await this.caller.call("market", "GET", `/${params.itemId}/mafile/`)
+    }
+
+    async getGuardCode(params?: GetGuardCodeParams): Promise<MarketResponse> {
+        if (!params) params = {}
+        return await this.caller.call(
+            "market",
+            "GET",
+            `/${params.itemId}/guard-code/`,
+        )
+    }
+
+    async getTelegramCode(
+        params?: GetTelegramCodeParams,
+    ): Promise<MarketResponse> {
+        if (!params) params = {}
+        return await this.caller.call(
+            "market",
+            "GET",
+            `/${params.itemId}/telegram-login-code/`,
+        )
+    }
+
+    async resetTelegramAuth(
+        params?: ResetTelegramAuthParams,
+    ): Promise<MarketResponse> {
+        if (!params) params = {}
+        return await this.caller.call(
+            "market",
+            "POST",
+            `/${params.itemId}/telegram-reset-authorizations/`,
+        )
+    }
+
+    async getTempEmailPassword(
+        params?: GetTempEmailPasswordParams,
+    ): Promise<MarketResponse> {
+        if (!params) params = {}
+        return await this.caller.call(
+            "market",
+            "GET",
+            `/${params.itemId}/temp-email-password/`,
+        )
+    }
+
+    async fave(params?: FaveParams): Promise<MarketResponse> {
+        if (!params) params = {}
+        return await this.caller.call("market", "POST", `/${params.itemId}/star/`)
+    }
+
+    async unFave(params?: FaveParams): Promise<MarketResponse> {
+        if (!params) params = {}
+        return await this.caller.call(
+            "market",
+            "DELETE",
+            `/${params.itemId}/star/`,
+        )
+    }
+
+    async stickItem(params?: StickParams): Promise<MarketResponse> {
+        if (!params) params = {}
+        return await this.caller.call("market", "POST", `/${params.itemId}/stick/`)
+    }
+
+    async unstickItem(params?: StickParams): Promise<MarketResponse> {
+        if (!params) params = {}
+        return await this.caller.call(
+            "market",
+            "DELETE",
+            `/${params.itemId}/stick/`,
+        )
+    }
+
+    async changeOwner(params?: ChangeOwnerParams): Promise<MarketResponse> {
+        if (!params) params = {}
+        return await this.caller.call(
+            "market",
+            "POST",
+            `/${params.itemId}/change-owner/`,
+            {
+                username: params.username,
+                secret_answer: params.secretAnswer,
+            },
+        )
+    }
+
+    async steamValue(params?: SteamValueParams): Promise<MarketResponse> {
+        if (!params) params = {}
+        return await this.caller.call("market", "GET", `/steam-value/`, {
+            link: params.link,
+            app_id: params.appId,
+            currency: params.currency,
+            ignore_cache: params.ignoreCache ? 1 : 0,
+        })
+    }
+
+    async steamPreview(params?: SteamPreviewParams): Promise<MarketResponse> {
+        if (!params) params = {}
+        return await this.caller.call(
+            "market",
+            "GET",
+            `/${params.itemId}/steam-preview/`,
+            {
+                type: params.type,
+            },
+        )
+    }
+
+    async getCategoryParams(
+        params?: GetCategoryParamsParams,
+    ): Promise<MarketResponse> {
+        if (!params) params = {}
+        return await this.caller.call(
+            "market",
+            "GET",
+            `/${params.categoryName}/params/`,
+        )
+    }
+
+    async getGames(params?: GetGamesParams): Promise<MarketResponse> {
+        if (!params) params = {}
+        return await this.caller.call(
+            "market",
+            "GET",
+            `/${params.categoryName}/games/`,
+        )
+    }
+
+    async bumpItem(params?: BumpItemParams): Promise<MarketResponse> {
+        if (!params) params = {}
+        return await this.caller.call("market", "POST", `/${params.itemId}/bump/`)
+    }
+
+    async getCategories(params?: GetCategoriesParams): Promise<MarketResponse> {
+        if (!params) params = {}
+        return await this.caller.call("market", "GET", `/category/`, {
+            top_queries: params.topQueries ? 1 : 0,
+        })
+    }
+
+    async getMe(): Promise<MarketResponse> {
+        return await this.caller.call("market", "GET", `/me/`)
+    }
+
+    async editMe(params?: EditMeParams): Promise<MarketResponse> {
+        if (!params) params = {}
+        return await this.caller.call("market", "PUT", `/me/`, {
+            disable_steam_guard: params.disableSteamGuard,
+            user_allow_ask_discount: params.userAllowAskDiscount,
+            max_discount_percent: params.maxDiscountPercent,
+            allow_accept_accounts: params.allowAcceptAccounts,
+            hide_favorites: params.hideFavorites,
+            vk_ua: params.vkUa,
+        })
+    }
+
+    async getProxys(): Promise<MarketResponse> {
+        return await this.caller.call("market", "GET", `/proxy/`)
+    }
+
+    async addProxy(params?: AddProxyParams): Promise<MarketResponse> {
+        if (!params) params = {}
+        return await this.caller.call("market", "POST", `/proxy/`, {
+            proxy_ip: params.proxy_ip,
+            proxy_port: params.proxy_port,
+            proxy_user: params.proxy_user,
+            proxy_pass: params.proxy_pass,
+            proxy_row: params.proxy_row,
+        })
+    }
+
+    async deleteProxy(params?: DeleteProxyParams): Promise<MarketResponse> {
+        if (!params) params = {}
+        return await this.caller.call("market", "DELETE", `/proxy/`, {
+            proxy_id: params.proxy_id,
+            delete_all: params.delete_all ? 1 : 0,
+        })
+    }
+
+    async fastSell(params?: FastSellParams): Promise<MarketResponse> {
+        if (!params) params = {}
+        return await this.caller.call("market", "POST", `/item/fast-sell`, {
+            title: params.title,
+            title_en: params.title_en,
+            price: params.price,
+            category_id: params.category_id,
+            currency: params.currency,
+            item_origin: params.item_origin,
+            extended_guarantee: params.extended_guarantee,
+            description: params.description,
+            information: params.information,
+            login: params.login,
+            password: params.password,
+            login_password: params.login_password,
+            has_email_login_data: params.has_email_login_data,
+            email_login_data: params.email_login_data,
+            close_item: params.close_item,
+            email_type: params.email_type,
+            allow_ask_discount: params.allow_ask_discount,
+            proxy_id: params.proxy_id,
+            random_proxy: params.random_proxy,
+            extra: params.extra,
+        })
+    }
+
+    async getAuction(params?: GetAuctionParams): Promise<MarketResponse> {
+        if (!params) params = {}
+        return await this.caller.call("market", "GET", `/${params.itemId}/auction`)
+    }
+
+    async addBid(params?: AddBidParams): Promise<MarketResponse> {
+        if (!params) params = {}
+        return await this.caller.call(
+            "market",
+            "POST",
+            `/${params.itemId}/auction/bid`,
+            {
+                currency: params.currency,
+                amount: params.amount,
+            },
+        )
+    }
+
+    async removeBid(params?: RemoveBidParams): Promise<MarketResponse> {
+        if (!params) params = {}
+        return await this.caller.call(
+            "market",
+            "DELETE",
+            `/${params.itemId}/auction/bid`,
+            {
+                bid_id: params.bidId,
+            },
+        )
+    }
 }
